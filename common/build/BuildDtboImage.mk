@@ -1,0 +1,20 @@
+ifneq ($(BOARD_PREBUILT_DTBO),)
+
+MKDTIMG := system/libufdt/utils/src/mkdtboimg.py
+
+DTBOIMAGE := $(PRODUCT_OUT)/$(BOARD_DTBO_UNSIGNED)
+
+$(BUILT_TARGET_FILES_DIR): $(DTBOIMAGE)
+$(DTBOIMAGE): $(MKDTIMG) $(BOARD_PREBUILT_DTBO)
+	$(MKDTIMG) create $@ $(BOARD_PREBUILT_DTBO)
+
+include $(CLEAR_VARS)
+LOCAL_MODULE := dtboimage
+LOCAL_LICENSE_KINDS := legacy_restricted
+LOCAL_LICENSE_CONDITIONS := restricted
+LOCAL_ADDITIONAL_DEPENDENCIES := $(DTBOIMAGE)
+include $(BUILD_PHONY_PACKAGE)
+
+droidcore: dtboimage
+
+endif

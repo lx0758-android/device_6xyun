@@ -1,0 +1,4 @@
+allow init configfs:dir create_dir_perms;
+allow init configfs:file write;
+allow init configfs:lnk_file { create unlink };
+allow init tmpfs:lnk_file create;

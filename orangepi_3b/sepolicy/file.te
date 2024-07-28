@@ -1,0 +1,5 @@
+type vendor_firmware_file, vendor_file_type, file_type;
+
+type sysfs_mmc, sysfs_type, fs_type;
+
+type vbmeta_block_device, dev_type;

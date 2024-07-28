@@ -1,0 +1,29 @@
+# OrangePi-3B (RK3566) Vendor Init Script
+#
+# Init trigger sequence (see system/core/init/init.cpp, system/core/rootdir/init.rc):
+#
+#   [init.cpp]  early-init -> init -> (charger | late-init)
+#   [init.rc]   late-init: early-fs -> fs -> post-fs -> late-fs -> post-fs-data
+#               -> load-bpf-programs -> bpf-progs-loaded -> zygote-start
+#               -> firmware_mounts_complete -> early-boot -> boot
+#               -> load_persist_props_action -> post-fs-data-checkpointed
+
+import init.${ro.hardware}.usb.rc
+
+on early-init
+    mount configfs none /sys/kernel/config
+    mount debugfs none /sys/kernel/debug mode=755
+
+on fs
+    mount_all --early --vendor_fstab /vendor/etc/fstab.orangepi_3b
+
+on late-fs
+    mount_all --late --vendor_fstab /vendor/etc/fstab.orangepi_3b
+
+on boot
+    write /proc/sys/kernel/panic_on_oops 1
+    write /proc/sys/kernel/hung_task_timeout_secs 30
+    write /proc/sys/kernel/watchdog_thresh 60
+
+on property:sys.boot_completed=1
+    # do nothing

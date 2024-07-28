@@ -1,0 +1,15 @@
+python_binary_host {
+    name: "parameter_tools",
+    version: {
+        py2: {
+            enabled: false,
+        },
+        py3: {
+            enabled: true,
+        },
+    },
+    main: "parameter_generator.py",
+    srcs: [
+        "parameter_generator.py",
+    ],
+}
