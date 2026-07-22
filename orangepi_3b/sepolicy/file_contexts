@@ -6,14 +6,13 @@
 /dev/dri                u:object_r:gpu_device:s0
 
 # Block devices
-/dev/block/platform/fe310000\.mmc/by-name/userdata    u:object_r:userdata_block_device:s0
-/dev/block/platform/fe310000\.mmc/by-name/misc       u:object_r:misc_block_device:s0
-/dev/block/platform/fe310000\.mmc/by-name/super      u:object_r:super_block_device:s0
 /dev/block/platform/fe310000\.mmc/by-name/boot       u:object_r:boot_block_device:s0
 /dev/block/platform/fe310000\.mmc/by-name/vendor_boot u:object_r:boot_block_device:s0
 /dev/block/platform/fe310000\.mmc/by-name/dtbo        u:object_r:dtbo_block_device:s0
 /dev/block/platform/fe310000\.mmc/by-name/vbmeta      u:object_r:vbmeta_block_device:s0
-/dev/block/platform/fe310000\.mmc/by-name/cache       u:object_r:cache_block_device:s0
+/dev/block/platform/fe310000\.mmc/by-name/misc       u:object_r:misc_block_device:s0
+/dev/block/platform/fe310000\.mmc/by-name/super      u:object_r:super_block_device:s0
+/dev/block/platform/fe310000\.mmc/by-name/userdata    u:object_r:userdata_block_device:s0
 
 # Vendor firmware
 /(vendor|system/vendor)/firmware(/.*)? u:object_r:vendor_firmware_file:s0

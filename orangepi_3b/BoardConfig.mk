@@ -24,6 +24,11 @@ PRODUCT_COPY_FILES += \
     $(UBOOT_DIR)/idbloader.img:idbloader.img \
     $(UBOOT_DIR)/u-boot.itb:u-boot.itb
 
+# A/B (Virtual)
+AB_OTA_UPDATER := true
+AB_OTA_PARTITIONS := boot vendor_boot dtbo vbmeta super
+BOARD_VIRTUAL_AB_OTA := true
+
 # Boot image
 KERNEL_DIR := device/6xyun/kernel/out/orangepi3b/dist
 PRODUCT_COPY_FILES += \
@@ -63,12 +68,11 @@ BOARD_KERNEL_CMDLINE += \
     firmware_class.path=/vendor/firmware \
     loglevel=7 \
     earlycon
-# Bootconfig (androidboot.* params; U-Boot will also append serialno/bootloader/verifiedbootstate)
+# Bootconfig (androidboot.* params; U-Boot will also append serialno/bootloader/verifiedbootstate/slot_suffix)
 BOARD_BOOTCONFIG += \
     androidboot.boot_devices=fe310000.mmc \
     androidboot.hardware=orangepi_3b \
-    androidboot.selinux=permissive \
-    androidboot.slot_suffix=_a
+    androidboot.selinux=permissive
 
 # Misc image
 BOARD_MISCIMAGE_PARTITION_SIZE := 4194304 # 4 MiB
@@ -93,11 +97,8 @@ BOARD_BUILD_SUPER_IMAGE_BY_DEFAULT := true
 BOARD_SUPER_PARTITION_SIZE := 4294967296 # 4096 MiB
 BOARD_SUPER_PARTITION_GROUPS := default_dynamic_partitions
 BOARD_DEFAULT_DYNAMIC_PARTITIONS_PARTITION_LIST := system vendor product
-BOARD_DEFAULT_DYNAMIC_PARTITIONS_SIZE := 2143289344 # 4096 / 2 - 4 (1M metadata)= 2044 MiB
+BOARD_DEFAULT_DYNAMIC_PARTITIONS_SIZE := 2143289344 # 4096 / 2 - 4 (1M metadata) = 2044 MiB
 
-# Cache image
-BOARD_CACHEIMAGE_FILE_SYSTEM_TYPE := f2fs
-BOARD_CACHEIMAGE_PARTITION_SIZE := 1073741824 # 1 GiB
 # Userdata image
 BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 21474836480 # 20 GiB
