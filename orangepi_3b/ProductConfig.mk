@@ -8,6 +8,7 @@ PRODUCT_DEVICE := orangepi_3b
 PRODUCT_BRAND := orangepi_3b
 PRODUCT_MODEL := orangepi_3b
 PRODUCT_MANUFACTURER := Xunlong
+PRODUCT_CHARACTERISTICS := tablet
 
 # Partitions
 PRODUCT_BUILD_BOOT_IMAGE := true
@@ -38,15 +39,15 @@ PRODUCT_PACKAGES += \
 
 # Thermal HAL
 PRODUCT_PACKAGES += \
-    android.hardware.thermal-service.example
+    com.android.hardware.thermal
 
 # Gatekeeper HAL (software)
 PRODUCT_PACKAGES += \
-    android.hardware.gatekeeper-service.nonsecure
+    com.android.hardware.gatekeeper.nonsecure
 
 # KeyMint HAL (software, nonsecure)
 PRODUCT_PACKAGES += \
-    android.hardware.security.keymint-service.nonsecure
+    com.android.hardware.keymint.rust_nonsecure
 
 # Boot control HAL
 PRODUCT_PACKAGES += \
