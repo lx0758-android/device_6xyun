@@ -1,0 +1,8 @@
+# 厂商固件目录类型
+type vendor_firmware_file, vendor_file_type, file_type;
+
+# eMMC 控制器 sysfs 节点
+type sysfs_mmc, sysfs_type, fs_type;
+
+# 校验分区（本阶段空置，类型先就位）
+type vbmeta_block_device, dev_type;

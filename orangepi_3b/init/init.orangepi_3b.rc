@@ -1,0 +1,21 @@
+# OrangePi-3B (RK3566) 厂商初始化脚本
+#
+# 触发顺序参考：
+#   early-init -> init -> late-init
+#   late-init: early-fs -> fs -> post-fs -> late-fs -> post-fs-data
+#              -> zygote-start -> early-boot -> boot
+
+on early-init
+    mount configfs none /sys/kernel/config
+    mount debugfs none /sys/kernel/debug mode=755
+
+on fs
+    mount_all --early --vendor_fstab /vendor/etc/fstab.orangepi_3b
+
+on late-fs
+    mount_all --late --vendor_fstab /vendor/etc/fstab.orangepi_3b
+
+on boot
+    write /proc/sys/kernel/panic_on_oops 1
+    write /proc/sys/kernel/hung_task_timeout_secs 30
+    write /proc/sys/kernel/watchdog_thresh 60

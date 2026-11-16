@@ -1,0 +1,10 @@
+# 初始化进程访问配置文件系统（USB gadget、内核子系统配置）
+allow init configfs:dir create_dir_perms;
+allow init configfs:file write;
+allow init configfs:lnk_file { create unlink };
+allow init tmpfs:lnk_file create;
+
+# 首阶段挂载所需的块设备访问
+allow init boot_block_device:blk_file rw_file_perms;
+allow init super_block_device:blk_file rw_file_perms;
+allow init userdata_block_device:blk_file rw_file_perms;

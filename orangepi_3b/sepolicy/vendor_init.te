@@ -1,0 +1,3 @@
+# 厂商初始化进程加载内核模块
+allow vendor_init vendor_file:system module_load;
+allow vendor_init self:capability sys_module;

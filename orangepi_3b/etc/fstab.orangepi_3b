@@ -1,0 +1,15 @@
+# OrangePi-3B (RK3566) 挂载表 —— 非 A/B
+# cache 1 GiB：恢复日志持久化（/cache/recovery/last_log）与非 A/B OTA 包暂存（uncrypt）。
+# <src>                          <mnt>          <type> <mnt_flags>              <fs_mgr_flags>
+
+/dev/block/by-name/boot          /boot          emmc   defaults                 recoveryonly,first_stage_mount
+/dev/block/by-name/vendor_boot   /vendor_boot   emmc   defaults                 recoveryonly,first_stage_mount
+/dev/block/by-name/misc          /misc          emmc   defaults                 defaults
+/dev/block/by-name/cache         /cache         ext4   noatime,nosuid,nodev     wait,check,formattable
+/dev/block/by-name/metadata      /metadata      ext4   noatime,nosuid,nodev     wait,check,formattable,first_stage_mount
+
+system                           /system        ext4   noatime,ro,errors=panic  wait,logical,first_stage_mount
+vendor                           /vendor        ext4   noatime,ro,errors=panic  wait,logical,first_stage_mount
+product                          /product       ext4   noatime,ro,errors=panic  wait,logical,first_stage_mount
+
+/dev/block/by-name/userdata      /data          f2fs   noatime,nosuid,nodev,discard,reserve_root=32768,resgid=1065,fsync_mode=nobarrier,checkpoint_merge latemount,wait,check,fileencryption=software,keydirectory=/metadata/vold/metadata_encryption,quota,reservedsize=128M
