@@ -5,6 +5,8 @@
 #   late-init: early-fs -> fs -> post-fs -> late-fs -> post-fs-data
 #              -> zygote-start -> early-boot -> boot
 
+import init.${ro.hardware}.usb.rc
+
 on early-init
     mount configfs none /sys/kernel/config
     mount debugfs none /sys/kernel/debug mode=755

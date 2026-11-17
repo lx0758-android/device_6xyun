@@ -1,13 +1,22 @@
 #
 # OrangePi-3B (RK3566) 产品定义
 #
-# 本阶段只提供构建骨架：产品标识、分区/镜像产物、首阶段挂载与恢复资源，
-# 不包含任何硬件服务（HAL）。开机验证在后续变更中进行。
+# 本阶段提供构建骨架与最小可开机硬件服务集合（显示、音频、电源、健康、密钥）。
 #
 
 $(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/aosp_arm64.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/generic_ramdisk.mk)
+
+# Dalvik 堆参数：不声明时运行时兜底只有 -Xms 4m / -Xmx 16m，系统服务必崩。
+# growth 取 2/4 GiB 通用档 192m；minfree/maxfree/利用率沿用 ART 默认量级，避免大块分配频繁 GC。
+PRODUCT_VENDOR_PROPERTIES += \
+    dalvik.vm.heapstartsize?=8m \
+    dalvik.vm.heapgrowthlimit?=192m \
+    dalvik.vm.heapsize?=512m \
+    dalvik.vm.heaptargetutilization?=0.6 \
+    dalvik.vm.heapminfree?=2m \
+    dalvik.vm.heapmaxfree?=32m
 
 # ---------------------------------------------------------------------------
 # 产品标识
@@ -95,7 +104,69 @@ PRODUCT_COPY_FILES += \
     device/6xyun/orangepi_3b/init/init.orangepi_3b.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.orangepi_3b.rc
 
 # ---------------------------------------------------------------------------
+# 显示栈：DRM/KMS 合成器 + minigbm + 软件图形回退（无 GPU 驱动）
+# ---------------------------------------------------------------------------
+PRODUCT_PACKAGES += \
+    com.android.hardware.graphics.composer.drm_hwcomposer \
+    gralloc.minigbm \
+    android.hardware.graphics.allocator-service.minigbm \
+    mapper.minigbm \
+    vulkan.pastel
+
+# 软件渲染需要可执行内存映射
+PRODUCT_REQUIRES_INSECURE_EXECMEM_FOR_SWIFTSHADER := true
+
+PRODUCT_VENDOR_PROPERTIES += \
+    ro.hardware.egl=angle \
+    ro.hardware.vulkan=pastel
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    ro.opengles.version=196608 \
+    ro.sf.lcd_density=160
+
+# ---------------------------------------------------------------------------
+# 音频栈：AIDL 服务 + 新版策略配置（无声卡驱动，仅占位）
+# ---------------------------------------------------------------------------
+PRODUCT_PACKAGES += \
+    com.android.hardware.audio
+
+# 编解码器只注册 AIDL 服务，默认发现方式会导致编码器列表为空
+PRODUCT_VENDOR_PROPERTIES += media.c2.hal.selection=aidl
+
+# 软件编解码器跑在 APEX 里，不提供 HAL 输入面；不切到 AIDL 图形缓冲源时，
+# 创建编码输入面会因取不到输入面而空指针崩溃（投屏/录屏必现）。
+PRODUCT_VENDOR_PROPERTIES += debug.stagefright.c2inputsurface=-1
+
+PRODUCT_COPY_FILES += \
+    device/6xyun/orangepi_3b/etc/audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_configuration.xml \
+    hardware/interfaces/audio/aidl/default/audio_effects_config.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_effects_config.xml \
+    frameworks/av/services/audiopolicy/config/bluetooth_audio_policy_configuration_7_0.xml:$(TARGET_COPY_OUT_VENDOR)/etc/bluetooth_audio_policy_configuration_7_0.xml \
+    frameworks/av/services/audiopolicy/config/r_submix_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/r_submix_audio_policy_configuration.xml \
+    frameworks/av/services/audiopolicy/config/usb_audio_policy_configuration.xml:$(TARGET_COPY_OUT_VENDOR)/etc/usb_audio_policy_configuration.xml \
+    frameworks/av/services/audiopolicy/config/default_volume_tables.xml:$(TARGET_COPY_OUT_VENDOR)/etc/default_volume_tables.xml \
+    frameworks/av/services/audiopolicy/config/audio_policy_volumes.xml:$(TARGET_COPY_OUT_VENDOR)/etc/audio_policy_volumes.xml
+
+# ---------------------------------------------------------------------------
+# 最小系统服务集：密钥、电源、健康
+# 不提供启动槽位控制服务：单槽位且无 OTA，默认实现在无槽位后缀时启动即崩，
+# 其 VINTF 声明会让 vold 的检查点探测无限等待，故整体不引入。
+# ---------------------------------------------------------------------------
+PRODUCT_PACKAGES += \
+    com.android.hardware.keymint.rust_nonsecure \
+    android.hardware.power-service.example \
+    android.hardware.health-service.example
+
+# ---------------------------------------------------------------------------
+# USB gadget
+# ---------------------------------------------------------------------------
+PRODUCT_COPY_FILES += \
+    device/6xyun/orangepi_3b/init/init.orangepi_3b.usb.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.orangepi_3b.usb.rc
+
+# ---------------------------------------------------------------------------
 # Soong 命名空间
 # ---------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
-    device/6xyun/orangepi_3b
+    device/6xyun/orangepi_3b \
+    external/minigbm \
+    external/drm_hwcomposer \
+    external/swiftshader

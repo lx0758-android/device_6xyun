@@ -154,6 +154,21 @@ BOARD_USERDATAIMAGE_FILE_SYSTEM_TYPE := f2fs
 BOARD_USERDATAIMAGE_PARTITION_SIZE := 21474836480 # 20 GiB
 
 # ---------------------------------------------------------------------------
+# 显示与音频（无 GPU 驱动：软件图形回退；无声卡驱动：占位音频服务）
+# ---------------------------------------------------------------------------
+BOARD_USES_DRM_HWCOMPOSER := true
+TARGET_USES_HWC2 := true
+TARGET_DISABLE_TRIPLE_BUFFERING := false
+
+# minigbm 平台适配
+SOONG_CONFIG_NAMESPACES += minigbm
+SOONG_CONFIG_minigbm += platform
+SOONG_CONFIG_minigbm_platform := rockchip
+
+# 音频策略使用 XML 配置（未继承 mainline 公共配置，需显式开启）
+USE_XML_AUDIO_POLICY_CONF := 1
+
+# ---------------------------------------------------------------------------
 # SELinux 与硬件接口清单
 # ---------------------------------------------------------------------------
 BOARD_SEPOLICY_DIRS += \

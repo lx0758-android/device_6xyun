@@ -1,0 +1,7 @@
+# 图形设备节点访问（无 GPU 驱动，合成器与分配器仍需打开显示节点）
+allow hal_graphics_allocator_default gpu_device:chr_file rw_file_perms;
+allow surfaceflinger gpu_device:chr_file rw_file_perms;
+allow platform_app gpu_device:chr_file rw_file_perms;
+allow priv_app gpu_device:chr_file rw_file_perms;
+allow untrusted_app gpu_device:chr_file rw_file_perms;
+allow system_app gpu_device:chr_file rw_file_perms;
