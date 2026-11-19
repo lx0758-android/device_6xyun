@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--
+        设计规格：本机为常供电设备，空闲时不进入系统挂起（auto-suspend）。
+        该策略由本 overlay 固定，不随上层设置变化。
+    -->
+    <bool name="config_useAutoSuspend">false</bool>
+
+    <!--
+        设计规格：启用 Doze（device idle）。熄屏后按 light idle → deep idle
+        逐级收敛后台活动；本机无电池，充电状态不会阻止进入 idle。
+    -->
+    <bool name="config_enableAutoPowerModes">true</bool>
+</resources>

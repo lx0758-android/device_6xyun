@@ -1,0 +1,37 @@
+// OrangePi-3B (RK3566) Health HAL
+//
+// 本机为直流直接供电、无电池。AOSP 的 BatteryMonitor 在找不到电池设备时
+// 会报告 batteryPresent=false，但没有 AC 供电节点时也会报告未插电。
+// 本实现只覆盖 UpdateHealthInfo()，把硬件事实明确写出来，不伪造电池读数。
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.health-service.6xyun",
+    relative_install_path: "hw",
+    vendor: true,
+    init_rc: ["android.hardware.health-service.6xyun.rc"],
+    vintf_fragments: ["android.hardware.health-service.6xyun.xml"],
+    defaults: ["libhealth_aidl_impl_user"],
+    static_libs: [
+        "libhealth_aidl_impl",
+    ],
+    // libhealth_aidl_impl_user 已经间接带上该库，这里显式写出，让“服务实现的
+    // 是 health AIDL 哪个接口版本”在 bp 里一眼可见。
+    // 版本必须与 android.hardware.health-service.6xyun.xml 的
+    // <version> 保持同步。
+    shared_libs: [
+        "android.hardware.health-V5-ndk",
+    ],
+    srcs: [
+        "main.cpp",
+        "HealthImpl.cpp",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}

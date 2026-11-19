@@ -21,3 +21,23 @@ on boot
     write /proc/sys/kernel/panic_on_oops 1
     write /proc/sys/kernel/hung_task_timeout_secs 30
     write /proc/sys/kernel/watchdog_thresh 60
+
+    # Power HAL 需要写 cpufreq 与 uclamp 节点（HAL 以 system 身份运行）
+    chown system system /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+    chown system system /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq
+    chmod 0660 /sys/devices/system/cpu/cpufreq/policy0/scaling_governor
+    chmod 0660 /sys/devices/system/cpu/cpufreq/policy0/scaling_max_freq
+    chown system system /sys/devices/system/cpu/cpu0/uclamp.min
+    chown system system /sys/devices/system/cpu/cpu1/uclamp.min
+    chown system system /sys/devices/system/cpu/cpu2/uclamp.min
+    chown system system /sys/devices/system/cpu/cpu3/uclamp.min
+    chmod 0660 /sys/devices/system/cpu/cpu0/uclamp.min
+    chmod 0660 /sys/devices/system/cpu/cpu1/uclamp.min
+    chmod 0660 /sys/devices/system/cpu/cpu2/uclamp.min
+    chmod 0660 /sys/devices/system/cpu/cpu3/uclamp.min
+
+    # lights HAL 需要写板载 LED 的 trigger 与 brightness（HAL 以 system 身份运行）
+    chown system system /sys/class/leds/android-status/trigger
+    chown system system /sys/class/leds/android-status/brightness
+    chmod 0660 /sys/class/leds/android-status/trigger
+    chmod 0660 /sys/class/leds/android-status/brightness

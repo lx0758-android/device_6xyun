@@ -1,0 +1,31 @@
+// OrangePi-3B (RK3566) 板载 LED 控制
+//
+// 单颗绿色 LED，挂在 gpio-leds 上，内核默认触发为 heartbeat。
+// 本 HAL 只把它注册为通知灯：有通知时接管亮度，通知清除后交还 heartbeat。
+
+package {
+    default_applicable_licenses: ["Android-Apache-2.0"],
+}
+
+cc_binary {
+    name: "android.hardware.lights-service.6xyun",
+    relative_install_path: "hw",
+    vendor: true,
+    init_rc: ["android.hardware.lights-service.6xyun.rc"],
+    vintf_fragments: ["android.hardware.lights-service.6xyun.xml"],
+    srcs: [
+        "main.cpp",
+        "Lights.cpp",
+    ],
+    shared_libs: [
+        "android.hardware.light-V3-ndk",
+        "libbase",
+        "libbinder_ndk",
+        "liblog",
+    ],
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wextra",
+    ],
+}

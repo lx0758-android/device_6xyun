@@ -77,6 +77,12 @@ PRODUCT_VENDOR_PROPERTIES += \
     ro.recovery.usb.fastboot.pid=4EE0
 
 # ---------------------------------------------------------------------------
+# 资源 overlay
+# ---------------------------------------------------------------------------
+# 设计规格：本机常供电，空闲时不进入系统挂起；同时启用 Doze 收敛后台活动。
+PRODUCT_PACKAGE_OVERLAYS += device/6xyun/orangepi_3b/overlay
+
+# ---------------------------------------------------------------------------
 # SELinux 与硬件接口清单
 # ---------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
@@ -153,8 +159,9 @@ PRODUCT_COPY_FILES += \
 # ---------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     com.android.hardware.keymint.rust_nonsecure \
-    android.hardware.power-service.example \
-    android.hardware.health-service.example
+    android.hardware.power-service.6xyun \
+    android.hardware.health-service.6xyun \
+    android.hardware.lights-service.6xyun
 
 # ---------------------------------------------------------------------------
 # USB gadget
@@ -163,10 +170,19 @@ PRODUCT_COPY_FILES += \
     device/6xyun/orangepi_3b/init/init.orangepi_3b.usb.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.orangepi_3b.usb.rc
 
 # ---------------------------------------------------------------------------
+# 有线网络特性声明
+# ---------------------------------------------------------------------------
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.ethernet.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.ethernet.xml
+
+# ---------------------------------------------------------------------------
 # Soong 命名空间
+#
+# Soong 不跟随软链接目录，厂商实现的命名空间必须使用实际路径；
+# Make 层（PRODUCT_COPY_FILES、BOARD_SEPOLICY_DIRS 等）仍使用 vendor/6xyun。
 # ---------------------------------------------------------------------------
 PRODUCT_SOONG_NAMESPACES += \
-    device/6xyun/orangepi_3b \
+    device/6xyun/.root/vendor_6xyun \
     external/minigbm \
     external/drm_hwcomposer \
     external/swiftshader

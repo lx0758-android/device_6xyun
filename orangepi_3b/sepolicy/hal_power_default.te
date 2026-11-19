@@ -1,0 +1,19 @@
+# Power HAL 的 boost / hint session 需要对应用线程调用 sched_setattr 设置
+# uclamp，这里要同时满足两道检查：
+#
+# 1. TE 规则：AOSP 只给 system_server / performanced 开了跨域 setsched，
+#    power HAL 需要单独放行到 appdomain。
+# 2. MLS 约束（plat 策略）：
+#      (mlsconstrain (process (sigkill ... setsched ...))
+#                    (or (eq l1 l2) (eq t1 mlstrustedsubject)))
+#    HAL 域在 s0，目标应用线程在 s0:c512,c768，级别不相等；只有源域被标为
+#    mlstrustedsubject 才能通过。AOSP 的 performanced 就是这个做法
+#    （system/sepolicy/public/performanced.te:2）。
+typeattribute hal_power_default mlstrustedsubject;
+
+allow hal_power_default appdomain:process setsched;
+
+# 模式切换写 /sys/devices/system/cpu/{cpufreq,cpuN/uclamp.min}，这些节点
+# 由 plat 策略标为 sysfs_devices_system_cpu；AOSP 没有给 power HAL 开写权限。
+allow hal_power_default sysfs_devices_system_cpu:dir r_dir_perms;
+allow hal_power_default sysfs_devices_system_cpu:file rw_file_perms;

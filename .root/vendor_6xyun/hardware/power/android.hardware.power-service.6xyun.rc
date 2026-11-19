@@ -1,0 +1,6 @@
+service vendor.power-default /vendor/bin/hw/android.hardware.power-service.6xyun
+    class hal
+    user system
+    group system
+    # setBoost/HintSession 需要对目标线程做 sched_setattr(UCLAMP)
+    capabilities SYS_NICE

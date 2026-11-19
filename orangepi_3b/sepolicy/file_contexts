@@ -14,6 +14,9 @@
 # 服务可执行文件（系统策略给出的是通用路径，变体需要单独标注）
 /(vendor|system/vendor)/bin/hw/android\.hardware\.security\.keymint-service\.nonsecure u:object_r:hal_keymint_default_exec:s0
 /(vendor|system/vendor)/bin/hw/android\.hardware\.graphics\.allocator-service\.minigbm u:object_r:hal_graphics_allocator_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.power-service\.6xyun u:object_r:hal_power_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.lights-service\.6xyun u:object_r:hal_light_default_exec:s0
+/(vendor|system/vendor)/bin/hw/android\.hardware\.health-service\.6xyun u:object_r:hal_health_default_exec:s0
 
 # 图形设备节点（为后续硬件服务阶段预留类型）
 /dev/mali0              u:object_r:gpu_device:s0

@@ -1,1 +1,6 @@
 genfscon sysfs /devices/platform/fe310000\.mmc u:object_r:sysfs_mmc:s0
+
+# gpio-leds 的实际 inode 在 /sys/devices/platform/leds 下；AOSP 只给
+# /sys/class/leds 打了 sysfs_leds，symlink 解析到真实路径后仍是 sysfs，
+# 会导致 hal_light_default 的 trigger/brightness 写被拒。
+genfscon sysfs /devices/platform/leds u:object_r:sysfs_leds:s0
