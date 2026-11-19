@@ -1,0 +1,37 @@
+arch=arm
+built_at=2026-11-20T02:34:14Z
+toolchain=aosp
+api_level=37
+mesa_src=/projects/android/android_17/external/mesa3d
+mesa_version=26.1.0-devel
+mesa_commit=875160ed32cc5bc32777fa04870a0a57ed38c987
+vulkan_drivers=panfrost
+libdrm_src=/projects/android/android_17/external/libdrm
+libdrm_commit=12b44e2c3b5186a7e84a5f21830b077cb8587861
+meson_version=1.12.1
+ninja_version=1.13.2.git.kitware.jobserver-pipe-1
+ndk_root=<none>
+buildtype=release
+--- cross file ---
+  [binaries]
+  c = '/projects/android/android_17/prebuilts/clang/host/linux-x86/clang-r596125/bin/clang'
+  cpp = '/projects/android/android_17/prebuilts/clang/host/linux-x86/clang-r596125/bin/clang++'
+  ar = '/projects/android/android_17/prebuilts/clang/host/linux-x86/clang-r596125/bin/llvm-ar'
+  strip = '/projects/android/android_17/prebuilts/clang/host/linux-x86/clang-r596125/bin/llvm-strip'
+  pkg-config = 'pkg-config'
+  llvm-config = '/usr/bin/llvm-config'
+  
+  [built-in options]
+  c_args = ['--target=armv7a-linux-androideabi37', '--sysroot=/projects/android/android_17/device/6xyun/.root/vendor_6xyun/hardware/gpu/mesa/out/build/sysroot-arm', '-isystem', '/projects/android/android_17/system/core/libcutils/include', '-isystem', '/projects/android/android_17/system/core/libsystem/include', '-isystem', '/projects/android/android_17/system/core/libsync/include', '-isystem', '/projects/android/android_17/hardware/libhardware/include', '-isystem', '/projects/android/android_17/frameworks/native/libs/nativewindow/include', '-isystem', '/projects/android/android_17/frameworks/native/libs/nativebase/include', '-isystem', '/projects/android/android_17/frameworks/native/libs/arect/include', '-isystem', '/projects/android/android_17/system/logging/liblog/include']
+  cpp_args = ['--target=armv7a-linux-androideabi37', '--sysroot=/projects/android/android_17/device/6xyun/.root/vendor_6xyun/hardware/gpu/mesa/out/build/sysroot-arm', '-isystem', '/projects/android/android_17/system/core/libcutils/include', '-isystem', '/projects/android/android_17/system/core/libsystem/include', '-isystem', '/projects/android/android_17/system/core/libsync/include', '-isystem', '/projects/android/android_17/hardware/libhardware/include', '-isystem', '/projects/android/android_17/frameworks/native/libs/nativewindow/include', '-isystem', '/projects/android/android_17/frameworks/native/libs/nativebase/include', '-isystem', '/projects/android/android_17/frameworks/native/libs/arect/include', '-isystem', '/projects/android/android_17/system/logging/liblog/include', '-stdlib=libc++', '-isystem', '/projects/android/android_17/device/6xyun/.root/vendor_6xyun/hardware/gpu/mesa/out/build/sysroot-arm/usr/include/c++/v1']
+  c_link_args = ['--target=armv7a-linux-androideabi37', '--sysroot=/projects/android/android_17/device/6xyun/.root/vendor_6xyun/hardware/gpu/mesa/out/build/sysroot-arm']
+  cpp_link_args = ['--target=armv7a-linux-androideabi37', '--sysroot=/projects/android/android_17/device/6xyun/.root/vendor_6xyun/hardware/gpu/mesa/out/build/sysroot-arm', '-nostdlib++', '-lc++_static', '-lc++abi']
+  
+  [host_machine]
+  system = 'android'
+  cpu_family = 'arm'
+  cpu = 'armv7'
+  endian = 'little'
+  
+  [properties]
+  needs_exe_wrapper = true

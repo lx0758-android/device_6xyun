@@ -110,25 +110,77 @@ PRODUCT_COPY_FILES += \
     device/6xyun/orangepi_3b/init/init.orangepi_3b.rc:$(TARGET_COPY_OUT_VENDOR)/etc/init/init.orangepi_3b.rc
 
 # ---------------------------------------------------------------------------
-# 显示栈：DRM/KMS 合成器 + minigbm + 软件图形回退（无 GPU 驱动）
+# 图形栈：DRM/KMS 合成器 + minigbm + Mesa Panfrost；ANGLE/SwiftShader 保留为回退
 # ---------------------------------------------------------------------------
 PRODUCT_PACKAGES += \
     com.android.hardware.graphics.composer.drm_hwcomposer \
     gralloc.minigbm \
     android.hardware.graphics.allocator-service.minigbm \
-    mapper.minigbm \
+    mapper.minigbm
+
+# Mesa Panfrost 预编译库（vendor/6xyun/prebuilts/gpu/mesa）
+PRODUCT_PACKAGES += \
+    libEGL_mesa \
+    libGLESv1_CM_mesa \
+    libGLESv2_mesa \
+    libgallium_dri
+
+# 两个 Vulkan 后端都进镜像：默认后端由 PRODUCT_VULKAN_TYPE 决定，
+# 但 vulkan.pastel.so 也保留，便于在设备上 remount 改 ro.hardware.vulkan 后直接切换，
+# 不必为了回退重新构建。
+PRODUCT_PACKAGES += \
+    vulkan.panfrost \
     vulkan.pastel
 
-# 软件渲染需要可执行内存映射
+# Vulkan 冒烟测试（/vendor/bin/panvk_smoke）：Vulkan 1.0 离屏 clear + copy + 回读校验。
+# 用于 task 2.12 验收，也可以对 pastel 跑同样的用例做对照。
+PRODUCT_PACKAGES += \
+    panvk_smoke
+
+# 软件渲染需要可执行内存映射（回退路径仍使用 SwiftShader）
 PRODUCT_REQUIRES_INSECURE_EXECMEM_FOR_SWIFTSHADER := true
 
+# Mesa 26.1 把 Bifrost（arch 6/7）上的 PanVK 标为“未充分测试”：
+# panvk_physical_device_init() 在 arch 6/7 时检查 PAN_I_WANT_A_BROKEN_VULKAN_DRIVER，
+# 未设置就直接返回 VK_ERROR_INCOMPATIBLE_DRIVER，物理设备被当成不兼容设备跳过，
+# 表现为 cmd gpu vkjson 的 devices 为空（instance 创建正常，也没有 dlopen 报错）。
+# G52 是 arch 7，所以使用 panfrost 时必须带上该开关。
+# Android 上 Mesa 的 os_get_option() 在环境变量缺失时回落到属性：变量名转小写、
+# '_' 换成 '.'、再加 "debug." 前缀，即
+#   PAN_I_WANT_A_BROKEN_VULKAN_DRIVER -> debug.mesa.pan.i.want.a.broken.vulkan.driver
+# 用属性交付而不是改 external/mesa3d。该开关与当前选的后端无关、始终注入，
+# 这样 remount 切到 panfrost 时不需要再补属性；选 pastel 时它只是一个不生效的选项。
+PRODUCT_VENDOR_PROPERTIES += debug.mesa.pan.i.want.a.broken.vulkan.driver=1
+
+# 图形后端类型（构建期选择）。ro.hardware.egl / ro.hardware.vulkan 都是只读属性，
+# 回退必须重新构建并刷写 vendor，不能在运行期 setprop 切换。
+#   EGL 类型:    mesa（默认，Mesa Panfrost GLES）
+#                angle（回退，ANGLE + SwiftShader Vulkan）
+#   Vulkan 类型: panfrost（默认，Mesa PanVK 硬件实现，已通过 panvk_smoke）
+#                pastel（回退，SwiftShader 软件实现）
+# 用法示例：
+#   m vendorimage PRODUCT_EGL_TYPE=angle
+#   m vendorimage PRODUCT_VULKAN_TYPE=pastel
+PRODUCT_EGL_TYPE ?= mesa
+PRODUCT_VULKAN_TYPE ?= panfrost
+# ro.hardware.gralloc 是 gralloc0 的查找入口。Mesa 的 u_gralloc 通过
+# hw_get_module("gralloc") 读取 DRM fourcc/stride/offset/modifier；找不到模块时
+# 退化为 fallback（只支持 RGBA），日志为
+# "No gralloc hwmodule detected (video buffers won't be supported)"，NV12/YV12
+# 缓冲无法交给 GPU。minigbm 的 gralloc0 模块文件是 gralloc.minigbm.so，
+# 必须由该属性指向它，Mesa 才会使用其中的 "CrOS Gralloc" 实现。
 PRODUCT_VENDOR_PROPERTIES += \
-    ro.hardware.egl=angle \
-    ro.hardware.vulkan=pastel
+    ro.hardware.gralloc=minigbm \
+    ro.hardware.egl=$(PRODUCT_EGL_TYPE) \
+    ro.hardware.vulkan=$(PRODUCT_VULKAN_TYPE)
 
 PRODUCT_PROPERTY_OVERRIDES += \
-    ro.opengles.version=196608 \
-    ro.sf.lcd_density=160
+    ro.opengles.version=196609 \
+    ro.sf.lcd_density=240
+
+# Panfrost 提供 GLES 3.1；同时声明 Android Extension Pack 特性
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.hardware.opengles.aep.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.opengles.aep.xml
 
 # ---------------------------------------------------------------------------
 # 音频栈：AIDL 服务 + 新版策略配置（无声卡驱动，仅占位）
@@ -174,6 +226,12 @@ PRODUCT_COPY_FILES += \
 # ---------------------------------------------------------------------------
 PRODUCT_COPY_FILES += \
     frameworks/native/data/etc/android.hardware.ethernet.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.hardware.ethernet.xml
+
+# Launcher3 的 OseWidgetManager 在 OSE 信息更新时直接使用 AppWidgetManager；
+# 未声明 android.software.app_widgets 时，SystemServiceRegistry 对
+# APPWIDGET_SERVICE 返回 null，Launcher 会反复 NullPointerException 崩溃。
+PRODUCT_COPY_FILES += \
+    frameworks/native/data/etc/android.software.app_widgets.xml:$(TARGET_COPY_OUT_VENDOR)/etc/permissions/android.software.app_widgets.xml
 
 # ---------------------------------------------------------------------------
 # Soong 命名空间

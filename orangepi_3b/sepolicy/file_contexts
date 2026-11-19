@@ -24,3 +24,19 @@
 /dev/dri/card0          u:object_r:gpu_device:s0
 /dev/dri/card1          u:object_r:gpu_device:s0
 /dev/dri/renderD128     u:object_r:gpu_device:s0
+
+# Mesa Gallium DRI 驱动由系统进程 dlopen，需要 same_process_hal_file；
+# /vendor/lib(64)/egl(/.*)? 已由系统策略统一覆盖，这里只补 libgallium_dri.so
+/(vendor|system/vendor)/lib(64)?/libgallium_dri\.so u:object_r:same_process_hal_file:s0
+
+# Mesa 的 u_gralloc 会在应用进程里通过 hw_get_module("gralloc") dlopen
+# gralloc.minigbm.so，AIDL mapper 也会在应用进程里 dlopen mapper.minigbm.so；
+# 这两个库及其依赖 libminigbm_gralloc.so 同样需要 same_process_hal_file 标签，
+# 否则在 enforcing 模式下会被 avc 拒绝（当前 permissive 掩盖了该问题）。
+/(vendor|system/vendor)/lib(64)?/hw/gralloc\.minigbm\.so u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/hw/mapper\.minigbm\.so u:object_r:same_process_hal_file:s0
+/(vendor|system/vendor)/lib(64)?/libminigbm_gralloc\.so u:object_r:same_process_hal_file:s0
+
+# Vulkan HAL 由 libvulkan 在应用进程内 dlopen，同样需要 same_process_hal_file。
+# panfrost 是 Mesa PanVK，pastel 是 SwiftShader 回退实现。
+/(vendor|system/vendor)/lib(64)?/hw/vulkan\.(panfrost|pastel)\.so u:object_r:same_process_hal_file:s0

@@ -1,0 +1,29 @@
+// PanVK 冒烟测试：离屏清屏 + 拷贝回读，验证 Vulkan 设备创建、命令提交与回读链路。
+//
+// 本工具与 Mesa 出树构建同目录，但不参与 build.sh，由平台构建按 PRODUCT_PACKAGES
+// 编译。只依赖 LLNDK 的 libvulkan / liblog；用法：/vendor/bin/panvk_smoke
+cc_binary {
+    name: "panvk_smoke",
+
+    vendor: true,
+    srcs: ["panvk_smoke.cpp"],
+
+    cpp_std: "c++17",
+    cflags: [
+        "-Wall",
+        "-Werror",
+        "-Wno-unused-parameter",
+    ],
+
+    header_libs: [
+        "vulkan_headers",
+    ],
+    shared_libs: [
+        "liblog",
+        "libvulkan",
+    ],
+
+    strip: {
+        none: true,
+    },
+}

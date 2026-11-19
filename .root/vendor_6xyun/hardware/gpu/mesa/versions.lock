@@ -1,0 +1,16 @@
+# 出树构建的来源锁定（只读引用，不复制、不修改上游）
+# 升级任何一项都必须重跑 build.sh 并更新产物 SHA256。
+
+mesa_version=26.1.0-devel
+mesa_commit=875160ed32cc5bc32777fa04870a0a57ed38c987
+
+libdrm_version=2.4.124
+libdrm_commit=12b44e2c3b5186a7e84a5f21830b077cb8587861
+
+# 工具下限
+meson_min=1.4.0
+python_min=3.10
+
+# 构建期 host 依赖（Mesa 26.1 Panfrost 的 CLC 需要）
+#   LLVM + libclc + LLVMSPIRVLib + SPIRV-Tools
+#   LLVMSPIRVLib 的主次版本必须与 llvm-config 一致

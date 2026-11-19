@@ -1,0 +1,99 @@
+// Mesa Panfrost 预编译库（arm64 + arm）
+//
+// 本文件是模板：由 vendor/6xyun/hardware/gpu/mesa/build.sh --install
+// 复制为 vendor/6xyun/prebuilts/gpu/mesa/Android.bp，请编辑模板而不是生成物。
+//
+// 产物来源与哈希见同目录的 build-info.txt 与 SHA256SUMS。
+// Android 同时启动 zygote64 与 zygote32，两个架构都必须提供 EGL/GLES；
+// 32 位进程只会搜索 /vendor/lib/egl，缺少 arm 产物会导致 app_process32 abort。
+
+cc_prebuilt_library_shared {
+    name: "libEGL_mesa",
+    vendor: true,
+    relative_install_path: "egl",
+    compile_multilib: "both",
+    check_elf_files: false,
+    strip: { none: true },
+    arch: {
+        arm64: {
+            srcs: ["arm64/libEGL_mesa.so"],
+        },
+        arm: {
+            srcs: ["arm/libEGL_mesa.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libGLESv1_CM_mesa",
+    vendor: true,
+    relative_install_path: "egl",
+    compile_multilib: "both",
+    check_elf_files: false,
+    strip: { none: true },
+    arch: {
+        arm64: {
+            srcs: ["arm64/libGLESv1_CM_mesa.so"],
+        },
+        arm: {
+            srcs: ["arm/libGLESv1_CM_mesa.so"],
+        },
+    },
+}
+
+cc_prebuilt_library_shared {
+    name: "libGLESv2_mesa",
+    vendor: true,
+    relative_install_path: "egl",
+    compile_multilib: "both",
+    check_elf_files: false,
+    strip: { none: true },
+    arch: {
+        arm64: {
+            srcs: ["arm64/libGLESv2_mesa.so"],
+        },
+        arm: {
+            srcs: ["arm/libGLESv2_mesa.so"],
+        },
+    },
+}
+
+// Gallium DRI 驱动由 libEGL_mesa 在运行期 dlopen，安装到 /vendor/lib64/ 与 /vendor/lib/。
+// 需要配套 same_process_hal_file 标签，见设备 sepolicy 的 file_contexts。
+cc_prebuilt_library_shared {
+    name: "libgallium_dri",
+    vendor: true,
+    compile_multilib: "both",
+    check_elf_files: false,
+    strip: { none: true },
+    arch: {
+        arm64: {
+            srcs: ["arm64/libgallium_dri.so"],
+        },
+        arm: {
+            srcs: ["arm/libgallium_dri.so"],
+        },
+    },
+}
+
+// Mesa PanVK（Vulkan）。libvulkan 在应用进程内按 ro.hardware.vulkan 拼出
+// vulkan.<值>.so 并 dlopen；Soong 预编译库按模块名安装，所以模块名直接取
+// vulkan.panfrost，安装到 /vendor/lib64/hw/vulkan.panfrost.so 与
+// /vendor/lib/hw/vulkan.panfrost.so。
+// 需要配套 same_process_hal_file 标签，见设备 sepolicy 的 file_contexts。
+cc_prebuilt_library_shared {
+    name: "vulkan.panfrost",
+    vendor: true,
+    relative_install_path: "hw",
+    compile_multilib: "both",
+    check_elf_files: false,
+    strip: { none: true },
+    arch: {
+        arm64: {
+            srcs: ["arm64/libvulkan_panfrost.so"],
+        },
+        arm: {
+            srcs: ["arm/libvulkan_panfrost.so"],
+        },
+    },
+}
